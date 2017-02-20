@@ -1,9 +1,10 @@
 import pizza
+import math
 
-file_name = 'example.in'
+file_name = 'example'
 
-file = open(file_name)
-lines = file.readlines()
+with open('inputs\\' + file_name + '.in', 'r') as f:
+        lines = f.readlines()
 
 metadata = dict()
 metadata_inputs = lines[0][:-1].split(' ')
@@ -21,17 +22,28 @@ for i in range(1, len(lines)):
 		pizza_row.append(lines[i][j])
 	pizza_list.append(pizza_row)
 
-file.close()
-
 pizza = pizza.Pizza(pizza_list)
 
 print(metadata)
 print(pizza)
 
+num_slices = math.ceil(pizza.get_cell_count() / metadata['max_cells_per_slice'])
+
 slices = list()
-slices.append(pizza.cut_slice((0, 0), (2, 1)))
-slices.append(pizza.cut_slice((0, 2), (2, 2)))
-slices.append(pizza.cut_slice((0, 3), (2, 4)))
+
+for j in range(0, (metadata['columns'] // 2), metadata['max_cells_per_slice'] // metadata['rows']):
+        slices.append(pizza.cut_cells((0, j), (metadata['max_cells_per_slice'] // metadata['rows'], j + 1)))
+
+for j in range(metadata['columns'] - 1, (metadata['columns'] // 2), -(metadata['max_cells_per_slice'] // metadata['rows'])):
+        slices.append(pizza.cut_cells((0, j - 1), (metadata['max_cells_per_slice'] // metadata['rows'], j)))
+
+slices.append(pizza.cut_cells((0, (metadata['columns'] // 2)), (metadata['max_cells_per_slice'] // metadata['rows'], (metadata['columns'] // 2))))
 
 print(pizza)
 print(slices)
+
+with open('outputs\\' + file_name + '.out', 'w') as f:
+        f.write(str(len(slices)) + '\n')
+        for s in slices:
+                f.write(s[0] + '\n')
+
