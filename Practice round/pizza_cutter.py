@@ -31,13 +31,14 @@ num_slices = math.ceil(pizza.get_cell_count() / metadata['max_cells_per_slice'])
 
 slices = list()
 
-for j in range(0, (metadata['columns'] // 2), metadata['max_cells_per_slice'] // metadata['rows']):
-        slices.append(pizza.cut_cells((0, j), (metadata['max_cells_per_slice'] // metadata['rows'], j + 1)))
+for i in range(0, metadata['rows'] - 1, metadata['max_cells_per_slice'] // metadata['rows']):
+        for j in range(0, (metadata['columns'] // 2), metadata['max_cells_per_slice'] // metadata['rows']):
+                slices.append(pizza.cut_cells((i, j), (i + (metadata['max_cells_per_slice'] // metadata['rows']), j + 1)))
 
-for j in range(metadata['columns'] - 1, (metadata['columns'] // 2), -(metadata['max_cells_per_slice'] // metadata['rows'])):
-        slices.append(pizza.cut_cells((0, j - 1), (metadata['max_cells_per_slice'] // metadata['rows'], j)))
+        for j in range(metadata['columns'] - 1, (metadata['columns'] // 2), -(metadata['max_cells_per_slice'] // metadata['rows'])):
+                slices.append(pizza.cut_cells((i, j - 1), (i + (metadata['max_cells_per_slice'] // metadata['rows']), j)))
 
-slices.append(pizza.cut_cells((0, (metadata['columns'] // 2)), (metadata['max_cells_per_slice'] // metadata['rows'], (metadata['columns'] // 2))))
+        slices.append(pizza.cut_cells((i, (metadata['columns'] // 2)), (i + (metadata['max_cells_per_slice'] // metadata['rows']), (metadata['columns'] // 2))))
 
 print(pizza)
 print(slices)
