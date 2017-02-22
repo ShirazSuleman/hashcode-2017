@@ -24,24 +24,40 @@ for i in range(1, len(lines)):
 
 pizza = pizza.Pizza(pizza_list)
 
-print(metadata)
-print(pizza)
+#print(metadata)
+#print(pizza)
 
 num_slices = math.ceil(pizza.get_cell_count() / metadata['max_cells_per_slice'])
 
 slices = list()
 
-for i in range(0, metadata['rows'] - 1, metadata['max_cells_per_slice'] // metadata['rows']):
-        for j in range(0, (metadata['columns'] // 2), metadata['max_cells_per_slice'] // metadata['rows']):
-                slices.append(pizza.cut_cells((i, j), (i + (metadata['max_cells_per_slice'] // metadata['rows']), j + 1)))
+potential_scores = {}
+min_cells = metadata['min_ingredient_per_slice'] * 2
 
-        for j in range(metadata['columns'] - 1, (metadata['columns'] // 2), -(metadata['max_cells_per_slice'] // metadata['rows'])):
-                slices.append(pizza.cut_cells((i, j - 1), (i + (metadata['max_cells_per_slice'] // metadata['rows']), j)))
 
-        slices.append(pizza.cut_cells((i, (metadata['columns'] // 2)), (i + (metadata['max_cells_per_slice'] // metadata['rows']), (metadata['columns'] // 2))))
+column = 0
 
-print(pizza)
-print(slices)
+while column < metadata['columns']:
+        potential_scores[column] = 0
+        row = 0
+        while row < metadata['rows']:
+                ingredient_count = {}
+                if (row + min_cells) > metadata['rows']:
+                        break
+                for cell in range(row, row + min_cells):
+                        ingredient_count[pizza.get_cell_value((cell, column))] = ingredient_count.get(pizza.get_cell_value((cell, column)), 0) + 1
+                
+                if ingredient_count.get('T', 0) >= metadata['min_ingredient_per_slice'] and ingredient_count.get('M', 0) >= metadata['min_ingredient_per_slice']:
+                        potential_scores[column] = potential_scores.get(column, 0) + 1
+                        row += min_cells
+                else:
+                        row += 1
+        column += 1
+
+print('Potential Scores: ')
+print(potential_scores)
+#print(pizza)
+#print(slices)
 
 with open('outputs\\' + file_name + '.out', 'w') as f:
         f.write(str(len(slices)) + '\n')
