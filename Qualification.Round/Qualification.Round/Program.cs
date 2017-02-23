@@ -47,7 +47,9 @@ namespace Qualification.Round
 
             var endPoints = new List<EndPoint>(numOfEndPoints);
             var rowIndex = 2;
-            foreach(var endPoint in Enumerable.Range(0, (numOfEndPoints - 1) ))
+
+            var endPointIndex = 0;
+            while (endPointIndex < numOfEndPoints)
             {
                 var endPointInfo = dataSet[rowIndex].Split(' ');
                 var endPointLatency = long.Parse(endPointInfo[0]);
@@ -55,23 +57,22 @@ namespace Qualification.Round
 
                 var _endPoint = new EndPoint
                 {
-                    ID = endPoint,
+                    ID = endPointIndex,
                     LatencyToDataCenterInMs = endPointLatency,
                     CacheLatencyList = new List<CacheLatency>()
                 };
 
-                if (numOfConnectedCaches == 0) {
+                if (numOfConnectedCaches == 0)
+                {
                     endPoints.Add(_endPoint);
-                    rowIndex += 1;
+                    rowIndex++;
                     continue;
                 }
 
-                foreach (var cacheIndex in Enumerable.Range(0, (numOfConnectedCaches - 1))){
-                    rowIndex++;
+                rowIndex++;
 
-                    if (rowIndex >= dataSet.Count())
-                        continue;
-
+                for(int i = 0; i < numOfConnectedCaches; i++)
+                {
                     var cacheLatencyInfo = dataSet[rowIndex].Split(' ');
                     var cacheId = int.Parse(cacheLatencyInfo[0]);
                     var cacheLatency = long.Parse(cacheLatencyInfo[1]);
@@ -81,9 +82,14 @@ namespace Qualification.Round
                         LatencyInMs = cacheLatency
                     };
                     _endPoint.CacheLatencyList.Add(cacheLatencyEntity);
-                   
+
+                    if (i + 1 < numOfConnectedCaches)
+                        rowIndex++;
                 }
+
                 endPoints.Add(_endPoint);
+                endPointIndex++;
+                rowIndex++;
             }
 
             var requestDescriptions = new List<RequestDescription>(numOfRequests);
