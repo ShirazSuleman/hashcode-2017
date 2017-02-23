@@ -45,13 +45,14 @@ while column < metadata['columns']:
         row = 0
         while row < metadata['rows']:
                 ingredient_count = {}
-                for cell in range(row, (row + min_cells) if (row + min_cells) < metadata['rows'] else metadata['rows']):
+                step = (row + min_cells) if (row + min_cells) < metadata['rows'] else metadata['rows']
+                for cell in range(row, step):
                         ingredient_count[pizza.get_cell_value((cell, column))] = ingredient_count.get(pizza.get_cell_value((cell, column)), 0) + 1
                 
                 if ingredient_count.get('T', 0) >= metadata['min_ingredient_per_slice'] and ingredient_count.get('M', 0) >= metadata['min_ingredient_per_slice']:
                         potential_column_scores[column] = potential_column_scores.get(column, 0) + (ingredient_count.get('T', 0) + ingredient_count.get('M', 0))
-                        column_slices[column].append(((row, column, (row + min_cells - 1), column)))
-                        row += min_cells
+                        column_slices[column].append(((row, column, (row + step - 1), column)))
+                        row += step
                 else:
                         row += 1
         column += 1
@@ -70,13 +71,14 @@ while row < metadata['rows']:
         column = 0
         while column < metadata['columns']:
                 ingredient_count = {}
-                for cell in range(column, (column + min_cells) if (column + min_cells) < metadata['columns'] else metadata['columns']):
+                step = (column + min_cells) if (column + min_cells) < metadata['columns'] else metadata['columns']
+                for cell in range(column, step):
                         ingredient_count[pizza.get_cell_value((row, cell))] = ingredient_count.get(pizza.get_cell_value((row, cell)), 0) + 1
                 
                 if ingredient_count.get('T', 0) >= metadata['min_ingredient_per_slice'] and ingredient_count.get('M', 0) >= metadata['min_ingredient_per_slice']:
                         potential_row_scores[row] = potential_row_scores.get(row, 0) + (ingredient_count.get('T', 0) + ingredient_count.get('M', 0))
-                        row_slices[row].append(((row, column, row, (column + min_cells - 1))))
-                        column += min_cells
+                        row_slices[row].append(((row, column, row, (column + step - 1))))
+                        column += step
                 else:
                         column += 1
         row += 1
@@ -87,11 +89,18 @@ print(potential_column_scores)
 print('Column Slices: ')
 print(column_slices)
 
+print('Total Column Score: ')
+print(sum(potential_column_scores.values()))
+
 print('Potential Row Scores: ')
 print(potential_row_scores)
 
 print('Row Slices: ')
 print(row_slices)
+
+print('Total Row Score: ')
+print(sum(potential_row_scores.values()))
+
 #print(pizza)
 #print(slices)
 
