@@ -26,10 +26,6 @@ pizza = pizza.Pizza(pizza_list)
 
 #print(pizza)
 
-num_slices = math.ceil(pizza.get_cell_count() / metadata['max_cells_per_slice'])
-
-slices = list()
-
 min_cells = metadata['max_cells_per_slice'] if metadata['columns'] > metadata['max_cells_per_slice'] else metadata['columns']
 
 column_slices = {}
@@ -81,6 +77,7 @@ while row < metadata['rows']:
         row += 1
 
 possible_slices = [] 
+slices = list()
  
 if sum(potential_column_scores.values()) > sum(potential_row_scores.values()): 
         for column_key in column_slices.keys(): 
