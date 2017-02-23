@@ -31,8 +31,7 @@ num_slices = math.ceil(pizza.get_cell_count() / metadata['max_cells_per_slice'])
 
 slices = list()
 
-# min_cells = metadata['min_ingredient_per_slice'] * 2
-min_cells = metadata['max_cells_per_slice'] if metadata['rows'] > metadata['max_cells_per_slice'] else metadata['rows']
+min_cells = metadata['min_ingredient_per_slice'] * 2
 
 column_slices = {}
 potential_column_scores = {}
@@ -45,20 +44,19 @@ while column < metadata['columns']:
         row = 0
         while row < metadata['rows']:
                 ingredient_count = {}
-                step = (row + min_cells) if (row + min_cells) < metadata['rows'] else metadata['rows']
-                for cell in range(row, step):
+                stop = (row + min_cells) if (row + min_cells) < metadata['rows'] else metadata['rows']
+                for cell in range(row, stop):
                         ingredient_count[pizza.get_cell_value((cell, column))] = ingredient_count.get(pizza.get_cell_value((cell, column)), 0) + 1
                 
                 if ingredient_count.get('T', 0) >= metadata['min_ingredient_per_slice'] and ingredient_count.get('M', 0) >= metadata['min_ingredient_per_slice']:
                         potential_column_scores[column] = potential_column_scores.get(column, 0) + (ingredient_count.get('T', 0) + ingredient_count.get('M', 0))
-                        column_slices[column].append(((row, column, (row + step - 1), column)))
-                        row += step
+                        column_slices[column].append(((row, column, (row + min_cells - 1), column)))
+                        row += min_cells
                 else:
                         row += 1
         column += 1
 
-# min_cells = metadata['min_ingredient_per_slice'] * 2
-min_cells = metadata['max_cells_per_slice'] if metadata['columns'] > metadata['max_cells_per_slice'] else metadata['columns']
+min_cells = metadata['min_ingredient_per_slice'] * 2
 
 row_slices = {}
 potential_row_scores = {}
@@ -71,14 +69,14 @@ while row < metadata['rows']:
         column = 0
         while column < metadata['columns']:
                 ingredient_count = {}
-                step = (column + min_cells) if (column + min_cells) < metadata['columns'] else metadata['columns']
-                for cell in range(column, step):
+                stop = (column + min_cells) if (column + min_cells) < metadata['columns'] else metadata['columns']
+                for cell in range(column, stop):
                         ingredient_count[pizza.get_cell_value((row, cell))] = ingredient_count.get(pizza.get_cell_value((row, cell)), 0) + 1
                 
                 if ingredient_count.get('T', 0) >= metadata['min_ingredient_per_slice'] and ingredient_count.get('M', 0) >= metadata['min_ingredient_per_slice']:
                         potential_row_scores[row] = potential_row_scores.get(row, 0) + (ingredient_count.get('T', 0) + ingredient_count.get('M', 0))
-                        row_slices[row].append(((row, column, row, (column + step - 1))))
-                        column += step
+                        row_slices[row].append(((row, column, row, (column + min_cells - 1))))
+                        column += min_cells
                 else:
                         column += 1
         row += 1
