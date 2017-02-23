@@ -46,6 +46,7 @@
     <Compile Include="Entities\CacheLatency.cs" />
     <Compile Include="Entities\CacheServer.cs" />
     <Compile Include="Entities\EndPoint.cs" />
+    <Compile Include="Entities\EndpointCacheLatency.cs" />
     <Compile Include="Entities\RequestDescription.cs" />
     <Compile Include="Entities\Video.cs" />
     <Compile Include="Program.cs" />

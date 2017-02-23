@@ -6,13 +6,23 @@ using System.Threading.Tasks;
 
 namespace Qualification.Round.Entities
 {
-    public class CacheServer
+  public class CacheServer
+  {
+    public int ID { get; set; }
+    public List<Video> Videos { get; set; }
+    public int SizeInMb { get; set; }
+
+    public bool TryAdd(Video video)
     {
-        public int ID { get; set; }
-        public List<Video> Videos { get; set; }
-        public int SizeInMb { get; set; }
+      var totalVideoSize = Videos.Sum(v => v.SizeInMb);
 
-        
+      if (totalVideoSize + video.SizeInMb > SizeInMb)
+      {
+        return false;
+      }
 
+      Videos.Add(video);
+      return true;
     }
+  }
 }
