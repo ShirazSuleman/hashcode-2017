@@ -11,9 +11,13 @@ namespace Qualification.Round
     {
         static void Main(string[] args)
         {
-            var controller = ReadInputDataSet("../../DataSet/me_at_the_zoo.in");
+            var dataSetLocation = "../../DataSet/";
+            var resultLocation = "../../Results/";
+            var fileName = "me_at_the_zoo.in";
 
-
+            var controller = ReadInputDataSet($"{dataSetLocation}{fileName}");
+           
+            WriteResultToFile($"{resultLocation}Result{fileName}", controller);
         }
 
         public static StreamVideoController ReadInputDataSet(string fileName)
@@ -122,6 +126,29 @@ namespace Qualification.Round
                 Requests = requestDescriptions,
                 Caches = caches
             };
+        }
+
+        public static void WriteResultToFile(string fileName, StreamVideoController controller)
+        {
+            var fileLines = new List<string>();
+
+            var cachesInUse = controller.Caches.Count(c => c.Videos.Any());
+            fileLines.Add(cachesInUse.ToString());
+
+            foreach (var cacheServer in controller.Caches)
+            {
+                if (!cacheServer.Videos.Any())
+                    continue;
+
+                var cacheInfo = $"{cacheServer.ID} ";
+                foreach (var video in cacheServer.Videos)
+                {
+                    cacheInfo += $"{video.ID} ";
+                }
+                fileLines.Add(cacheInfo);
+            }
+
+            System.IO.File.WriteAllLines(fileName, fileLines);
         }
     }
 }
