@@ -7,11 +7,18 @@ using System.Threading.Tasks;
 
 namespace Qualification.Round
 {
-  class Program
-  {
-    static void Main(string[] args)
+    class Program
     {
-        var dataSet = System.IO.File.ReadAllLines("../../DataSet/me_at_the_zoo.in");
+        static void Main(string[] args)
+        {
+            var controller = ReadInputDataSet("../../DataSet/me_at_the_zoo.in");
+
+
+        }
+
+        public static StreamVideoController ReadInputDataSet(string fileName)
+        {
+            var dataSet = System.IO.File.ReadAllLines(fileName);
 
             var firstLine = dataSet[0].Split(' ');
 
@@ -35,7 +42,7 @@ namespace Qualification.Round
             }
 
             var caches = new List<CacheServer>();
-            foreach(var index in Enumerable.Range(0, numOfCaches))
+            foreach (var index in Enumerable.Range(0, numOfCaches))
             {
                 caches.Add(new CacheServer
                 {
@@ -71,7 +78,7 @@ namespace Qualification.Round
 
                 rowIndex++;
 
-                for(int i = 0; i < numOfConnectedCaches; i++)
+                for (int i = 0; i < numOfConnectedCaches; i++)
                 {
                     var cacheLatencyInfo = dataSet[rowIndex].Split(' ');
                     var cacheId = int.Parse(cacheLatencyInfo[0]);
@@ -93,10 +100,10 @@ namespace Qualification.Round
             }
 
             var requestDescriptions = new List<RequestDescription>(numOfRequests);
-            foreach (var i in Enumerable.Range(0,numOfRequests))
+            foreach (var i in Enumerable.Range(0, numOfRequests))
             {
                 var request = dataSet[rowIndex + i].Split(' ');
-                
+
                 var videoId = int.Parse(request[0]);
                 var endPointId = int.Parse(request[1]);
                 var numOfVideoRequests = int.Parse(request[2]);
@@ -108,6 +115,13 @@ namespace Qualification.Round
                     NumOfRequests = numOfVideoRequests
                 });
             }
+            return new StreamVideoController
+            {
+                Videos = videos,
+                EndPoints = endPoints,
+                Requests = requestDescriptions,
+                Caches = caches
+            };
+        }
     }
-  }
 }
