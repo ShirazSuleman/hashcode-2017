@@ -43,11 +43,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\CacheLatency.cs" />
+    <Compile Include="Entities\CacheServer.cs" />
+    <Compile Include="Entities\EndPoint.cs" />
+    <Compile Include="Entities\RequestDescription.cs" />
+    <Compile Include="Entities\Video.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StreamVideoController.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="DataSet\kittens.in" />
+    <None Include="DataSet\me_at_the_zoo.in" />
+    <None Include="DataSet\trending_today.in" />
+    <None Include="DataSet\videos_worth_spreading.in" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Results\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
