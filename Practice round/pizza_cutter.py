@@ -24,7 +24,6 @@ for i in range(1, len(lines)):
 
 pizza = pizza.Pizza(pizza_list)
 
-#print(metadata)
 #print(pizza)
 
 num_slices = math.ceil(pizza.get_cell_count() / metadata['max_cells_per_slice'])
@@ -81,24 +80,6 @@ while row < metadata['rows']:
                         column += 1
         row += 1
 
-#print('Potential Column Scores: ')
-#print(potential_column_scores)
-
-#print('Column Slices: ')
-#print(column_slices)
-
-#print('Total Column Score: ')
-#print(sum(potential_column_scores.values()))
-
-#print('Potential Row Scores: ')
-#print(potential_row_scores)
-
-#print('Row Slices: ')
-#print(row_slices)
-
-#print('Total Row Score: ')
-#print(sum(potential_row_scores.values()))
-
 possible_slices = [] 
  
 if sum(potential_column_scores.values()) > sum(potential_row_scores.values()): 
@@ -109,16 +90,11 @@ else:
         for row_key in row_slices: 
                 for slice in row_slices[row_key]: 
                         possible_slices.append(slice) 
- 
-#print(possible_slices) 
- 
+  
 for slice in possible_slices: 
         slices.append(pizza.cut_cells((slice[0], slice[1],), (slice[2], slice[3],))) 
  
 #print(pizza) 
-#print(slices) 
-
-#print(pizza)
 #print(slices)
 
 with open('outputs\\' + file_name + '.out', 'w') as f:
