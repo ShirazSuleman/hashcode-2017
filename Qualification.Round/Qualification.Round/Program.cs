@@ -134,6 +134,7 @@ namespace Qualification.Round
         if (numOfConnectedCaches == 0)
         {
           endPoints.Add(_endPoint);
+          endPointIndex++;
           rowIndex++;
           continue;
         }
