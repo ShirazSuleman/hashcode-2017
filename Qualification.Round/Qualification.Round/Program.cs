@@ -1,9 +1,6 @@
 ﻿using Qualification.Round.Entities;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Qualification.Round
 {
@@ -11,67 +8,81 @@ namespace Qualification.Round
   {
     static void Main(string[] args)
     {
-      var dataSetLocation = "../../DataSet/";
-      var resultLocation = "../../Results/";
-      var fileName = "trending_today.in";
+      const string dataSetLocation = "../../DataSet/";
+      const string resultLocation = "../../Results/";
+      const string fileName = "kittens.in";
 
       // Input
       var controller = ReadInputDataSet($"{dataSetLocation}{fileName}");
 
 
       // Processing
-      var videoRequests = controller.Requests.Join(controller.Videos, description => description.VideoId, video => video.ID,
-        (description, video) => new {description.FromEndPointId, description.NumOfRequests, VideoId = video.ID, video.SizeInMb}).ToList();
+      var validVideos = controller.Videos.Where(v => v.SizeInMb <= controller.Caches.First().SizeInMb).ToList();
+
+      var videoRequests = controller.Requests.Join(validVideos, description => description.VideoId, video => video.ID,
+        (description, video) => new { description.NumOfRequests, video.SizeInMb, VideoId = video.ID, description.FromEndPointId }).ToList();
 
       var endpointLatencies = new List<EndpointCacheLatency>();
 
-      foreach (var endPoint in controller.EndPoints)
+      for (var i = 0; i < controller.EndPoints.Count(); i++)
       {
-        foreach (var cacheLatency in endPoint.CacheLatencyList.OrderBy(cll => cll.LatencyInMs))
+        var orderedCacheLatencyList = controller.EndPoints[i].CacheLatencyList.OrderBy(cll => cll.LatencyInMs).ToList();
+
+        for (var j = 0; j < orderedCacheLatencyList.Count(); j++)
         {
           endpointLatencies.Add(new EndpointCacheLatency
           {
-            CacheId = cacheLatency.CacheId,
-            EndpointId = endPoint.ID,
-            LatencyInMs = cacheLatency.LatencyInMs
+            CacheId = orderedCacheLatencyList[j].CacheId,
+            EndpointId = controller.EndPoints[i].ID,
+            LatencyInMs = orderedCacheLatencyList[j].LatencyInMs
           });
         }
       }
 
-      var videoLatencyRequests = videoRequests.Join(endpointLatencies, videoRequest => videoRequest.FromEndPointId,
-        latency => latency.EndpointId,
-        (videoRequest, latency) =>
-          new
-          {
-            videoRequest.VideoId,
-            videoRequest.SizeInMb,
-            videoRequest.NumOfRequests,
-            latency.EndpointId,
-            latency.LatencyInMs,
-            latency.CacheId
-          });
+      var orderedVideoLatencyRequests = new List<VideoLatencyRequest>();
 
-      var orderedVideoLatencyRequests = videoLatencyRequests.OrderByDescending(vlc => vlc.NumOfRequests)
-                                                            .ThenBy(vlc => vlc.LatencyInMs)
-                                                            .ThenBy(vlc => vlc.SizeInMb).ToList();
+      var videoRequestsGroups = videoRequests.GroupBy(vr => vr.FromEndPointId);
+      var endpointLatenciesGroups = endpointLatencies.GroupBy(el => el.EndpointId);
 
-
-      while (orderedVideoLatencyRequests.Any())
+      foreach (var videoRequestsGroup in videoRequestsGroups)
       {
-        var firstItem = orderedVideoLatencyRequests.First();
-        var currentVideoEndpoints = orderedVideoLatencyRequests.Where(ve => ve.EndpointId == firstItem.EndpointId && ve.VideoId == firstItem.VideoId);
+        var endpoints = endpointLatenciesGroups.FirstOrDefault(group => group.Key == videoRequestsGroup.Key)?.Select(elg => new { elg.EndpointId, elg.CacheId, elg.LatencyInMs });
+        var videos = videoRequestsGroup.Select(vrg => new { vrg.NumOfRequests, vrg.SizeInMb, vrg.VideoId, vrg.FromEndPointId });
 
-        foreach (var currentVideoEndpoint in currentVideoEndpoints)
+        if (endpoints == null)
+          continue;
+
+        var joinResult = videos.Join(endpoints, v => v.FromEndPointId, e => e.EndpointId, (v, e) => new VideoLatencyRequest
         {
-          var cacheServer = controller.Caches.First(cache => cache.ID == currentVideoEndpoint.CacheId);
+          VideoId = v.VideoId,
+          SizeInMb = v.SizeInMb,
+          NumOfRequests = v.NumOfRequests,
+          EndpointId = e.EndpointId,
+          LatencyInMs = e.LatencyInMs,
+          CacheId = e.CacheId
+        });
 
-          if (cacheServer.TryAdd(controller.Videos.First(video => video.ID == currentVideoEndpoint.VideoId)))
-          {
-            break;
-          }
-        }
+        var result = joinResult.OrderByDescending(vlc => vlc.NumOfRequests)
+          .ThenBy(vlc => vlc.LatencyInMs)
+          .ThenBy(vlc => vlc.SizeInMb)
+          .GroupBy(vlr => new { vlr.VideoId, vlr.EndpointId }, (key, value) => value.First())
+          .ToList();
 
-        orderedVideoLatencyRequests.RemoveAll(ve => ve.VideoId == firstItem.VideoId && ve.EndpointId == firstItem.EndpointId);
+        orderedVideoLatencyRequests.AddRange(result);
+      }
+
+      for (var i = 0; i < orderedVideoLatencyRequests.Count(); i++)
+      {
+        var cacheServer = controller.Caches.First(cache => cache.ID == orderedVideoLatencyRequests[i].CacheId);
+        var video = controller.Videos.First(v => v.ID == orderedVideoLatencyRequests[i].VideoId);
+
+        if (cacheServer.SizeInMb < video.SizeInMb)
+          continue;
+
+        if (controller.Caches.All(c => c.SizeInMb < controller.Videos.Min(v => v.SizeInMb)))
+          break;
+
+        cacheServer.TryAdd(video);
       }
 
       // Output

@@ -14,12 +14,12 @@ namespace Qualification.Round.Entities
 
     public bool TryAdd(Video video)
     {
-      var totalVideoSize = Videos.Sum(v => v.SizeInMb);
-
-      if (totalVideoSize + video.SizeInMb > SizeInMb)
+      if (Videos.Any(v => v.ID == video.ID))
       {
         return false;
       }
+
+      SizeInMb -= video.SizeInMb;
 
       Videos.Add(video);
       return true;
